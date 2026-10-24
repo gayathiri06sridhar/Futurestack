@@ -1,0 +1,11 @@
+{
+  "brand_name": "Your Brand",
+  "tone": [
+    "Clear and helpful",
+    "Confident without exaggeration"
+  ],
+  "restricted_terms": [],
+  "approved_claims": [],
+  "product_facts": {},
+  "review_guidance": "Populate approved claims and product facts before relying on factual compliance checks. Do not treat missing information as proof that a claim is false."
+}
