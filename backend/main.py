@@ -2,6 +2,7 @@ from pathlib import Path
 
 from dotenv import load_dotenv
 from fastapi import FastAPI, File, HTTPException, UploadFile
+from fastapi.responses import FileResponse
 
 from backend.knowledge_base import load_brand_rules
 from backend.ocr import OCRServiceError, extract_text
@@ -9,6 +10,7 @@ from backend.reviewer import ReviewServiceError, review_text
 
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
+WEB_PAGE = PROJECT_ROOT / "frontend" / "index.html"
 load_dotenv(PROJECT_ROOT / ".env")
 MAX_IMAGE_SIZE = 10 * 1024 * 1024
 
@@ -20,8 +22,8 @@ app = FastAPI(
 
 
 @app.get("/")
-async def root() -> dict[str, str]:
-    return {"name": "AI Brand Governance Assistant", "status": "running"}
+async def root() -> FileResponse:
+    return FileResponse(WEB_PAGE, media_type="text/html")
 
 
 @app.get("/health")

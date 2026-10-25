@@ -56,6 +56,25 @@ suggested changes in an ephemeral Discord response. The backend is also
 available at `http://127.0.0.1:8000`, with interactive API documentation at
 `http://127.0.0.1:8000/docs`.
 
+## Web upload app
+
+Open `http://127.0.0.1:8000` to use the browser upload form. It sends images to
+the same `/check` endpoint as the Discord bot; the bot command and its
+configuration do not need to change.
+
+To host the web app, deploy the FastAPI backend and include the `frontend`
+directory. Configure `OCR_API_KEY` and `LLM_API_KEY` as private environment
+variables on the hosting provider, then start the service with
+`uvicorn backend.main:app --host 0.0.0.0 --port $PORT` (use the provider's
+required port variable). The deployed root URL serves the web app. To keep the
+Discord bot using the hosted backend, set its `BACKEND_URL` to that deployment's
+base URL.
+
+The `/check` endpoint does not currently require authentication or limit
+requests by visitor. Add appropriate access controls and rate limits before
+sharing a public deployment, since reviews call paid or quota-limited external
+providers.
+
 ## API response
 
 `POST /check` accepts a multipart `file` image (up to 10 MB) and returns the
