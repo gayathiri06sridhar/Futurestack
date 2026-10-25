@@ -1,97 +1,65 @@
-# AI Brand Governance Assistant
+# Futurestack
 
-A working prototype that reviews marketing-image text against your approved
-brand rules. A Discord `/check` command uploads an image to a FastAPI backend;
-the backend extracts text with OCR.space and asks Gemini to return a structured
-review. AI recommendations are advisory; a human makes the final decision.
+**An AI brand-governance framework for reviewing marketing content against a
+team's own knowledge base.**
 
-## Requirements
+This judging prototype demonstrates the review flow: upload an image, extract
+its text with OCR.space, and get advisory feedback from Gemini against the
+locally configured rules in `knowledge/brand_rules.json`.
 
-- Python 3.10 or newer
-- A Discord bot token, with the `bot` and `applications.commands` scopes
-- An OCR.space API key
-- A Gemini API key with access to the configured model
+The broader framework is designed to run in a team's working environment and
+respond to commands in tools such as Discord and Microsoft Teams. This prototype
+includes a web upload page and a Discord `/check` bot; Microsoft Teams support
+is not implemented.
 
-## Setup
+## Try it locally
 
-From the project root, create and activate a virtual environment, then install
-dependencies:
+Requires Python 3.10+, an OCR.space API key, a Gemini API key, and (for Discord)
+a Discord bot token.
 
 ```powershell
 py -m venv .venv
 .\.venv\Scripts\Activate.ps1
 py -m pip install -r requirements.txt
-if (-not (Test-Path .env)) { Copy-Item .env.example .env }
+Copy-Item .env.example .env
 ```
 
-Set `DISCORD_BOT_TOKEN`, `OCR_API_KEY`, and your Gemini API key as `LLM_API_KEY`
-in `.env`. Optionally set
-`DISCORD_GUILD_ID` to register the slash command immediately in a development
-server; without it, the command is registered globally and may take time to
-appear. `LLM_MODEL` defaults to `gemini-2.5-flash`. `BACKEND_URL` defaults to
-`http://127.0.0.1:8000`.
+Add `OCR_API_KEY`, `LLM_API_KEY`, and `DISCORD_BOT_TOKEN` to `.env`. Set
+`DISCORD_GUILD_ID` if you want the Discord command registered to a development
+server. Update `knowledge/brand_rules.json` with your approved brand rules and
+product facts.
 
-Edit [knowledge/brand_rules.json](knowledge/brand_rules.json) with your real,
-approved tone guidance, restricted terms, claims, and product facts before
-using the assistant. The included rules are deliberately a blank starting point,
-not factual guidance for a real brand.
-
-## Run
-
-Open two terminals at the project root. Start the backend in the first:
+Start the backend:
 
 ```powershell
 py -m uvicorn backend.main:app --reload
 ```
 
-Start the Discord bot in the second:
+Open `http://127.0.0.1:8000` for the web demo. To also run the Discord bot, open
+a second terminal and run:
 
 ```powershell
 py -m bot.discord_bot
 ```
 
-In a server where the bot is installed, run `/check` and attach an image. The
-bot returns the detected text, overall status, severity, reasoning, and
-suggested changes in an ephemeral Discord response. The backend is also
-available at `http://127.0.0.1:8000`, with interactive API documentation at
-`http://127.0.0.1:8000/docs`.
+Use `/check` in a server where the bot is installed. Both the web page and bot
+send images to the same backend review endpoint.
 
-## Web upload app
+## Hosting
 
-Open `http://127.0.0.1:8000` to use the browser upload form. It sends images to
-the same `/check` endpoint as the Discord bot; the bot command and its
-configuration do not need to change.
+Deploy the FastAPI app with the `frontend` and `knowledge` directories. Set
+`OCR_API_KEY` and `LLM_API_KEY` as private environment variables, and start the
+service with the host's required port, for example:
 
-To host the web app, deploy the FastAPI backend and include the `frontend`
-directory. Configure `OCR_API_KEY` and `LLM_API_KEY` as private environment
-variables on the hosting provider, then start the service with
-`uvicorn backend.main:app --host 0.0.0.0 --port $PORT` (use the provider's
-required port variable). For hosts that require a root-level FastAPI entrypoint,
-`index.py` exports the same app defined in `backend/main.py`. The deployed root
-URL serves the web app. To keep the Discord bot using the hosted backend, set
-its `BACKEND_URL` to that deployment's base URL.
+```text
+uvicorn backend.main:app --host 0.0.0.0 --port $PORT
+```
 
-The `/check` endpoint does not currently require authentication or limit
-requests by visitor. Add appropriate access controls and rate limits before
-sharing a public deployment, since reviews call paid or quota-limited external
-providers.
+`index.py` exports the app for hosts that look for a root-level FastAPI
+entrypoint. Set the Discord bot's `BACKEND_URL` to the deployed service URL if
+the bot should use that deployment.
 
-## API response
-
-`POST /check` accepts a multipart `file` image (up to 10 MB) and returns the
-extracted text plus a review with `status`, `issues`, `severity`, `reason`, and
-`suggestion`. Each issue includes its type, relevant text, severity, reason,
-and suggestion. OCR and LLM provider failures are returned as explicit HTTP
-errors; no placeholder or simulated results are used.
-
-Gemini HTTP errors include the provider's error message and, when available,
-the quota identifier. A new API key still uses the quotas and billing settings
-of its Google Cloud project; check that project's Gemini API quota and billing
-if a 429 persists.
-
-## Security and human review
-
-Keep `.env` private; it is excluded by `.gitignore`. Do not put API keys in
-source code or commit them. Images and extracted text are sent to the configured
-external OCR and LLM providers. The AI review is not an approval or a
-replacement for a human brand/legal decision-maker.
+> **Before making a deployment public:** `/check` has no authentication or
+> request limits. Add access controls to avoid unexpected provider usage or
+> costs. Images and extracted text are sent to external OCR and AI providers;
+> all review feedback is advisory and requires human judgment.
