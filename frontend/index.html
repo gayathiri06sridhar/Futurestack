@@ -105,6 +105,80 @@
         line-height: 1.65;
       }
 
+      .demo-notice {
+        display: flex;
+        gap: 13px;
+        align-items: flex-start;
+        max-width: 760px;
+        margin: 0 auto 24px;
+        padding: 16px 18px;
+        border: 1px solid #e8d7a8;
+        border-radius: 13px;
+        color: #614d20;
+        background: #fff9e9;
+        font-size: 13px;
+        line-height: 1.55;
+      }
+
+      .demo-icon {
+        display: grid;
+        width: 27px;
+        height: 27px;
+        flex: none;
+        place-items: center;
+        border-radius: 9px;
+        color: #765b16;
+        background: #f5e9c5;
+        font-size: 14px;
+        font-weight: 800;
+      }
+
+      .demo-notice strong {
+        display: block;
+        margin-bottom: 3px;
+        color: #493b1b;
+        font-size: 13px;
+      }
+
+      .demo-notice p { margin: 0; }
+
+      .discord-notice {
+        display: flex;
+        gap: 13px;
+        align-items: flex-start;
+        max-width: 760px;
+        margin: 0 auto 30px;
+        padding: 16px 18px;
+        border: 1px solid #d9dcef;
+        border-radius: 13px;
+        color: #454767;
+        background: #f5f6fc;
+        font-size: 13px;
+        line-height: 1.55;
+      }
+
+      .discord-icon {
+        display: grid;
+        width: 27px;
+        height: 27px;
+        flex: none;
+        place-items: center;
+        border-radius: 9px;
+        color: #4e55a1;
+        background: #e7e9f8;
+        font-size: 13px;
+        font-weight: 800;
+      }
+
+      .discord-notice strong {
+        display: block;
+        margin-bottom: 3px;
+        color: #303354;
+        font-size: 13px;
+      }
+
+      .discord-notice p { margin: 0; }
+
       .workspace {
         display: grid;
         grid-template-columns: minmax(0, 1fr) minmax(260px, .72fr);
@@ -411,6 +485,22 @@
           <h1 id="page-title">Give every image a brand check.</h1>
           <p>Upload a marketing image to check its text against your approved brand rules and product facts.</p>
         </section>
+
+        <aside class="demo-notice" aria-label="Demo notice">
+          <span class="demo-icon" aria-hidden="true">i</span>
+          <div>
+            <strong>This is just a demo</strong>
+            <p>This prototype is JUST made for judging. The actual project is more of a FRAMEWORK that lives in your working system locally, uses your knowledge base, and acts on commands in environments such as Discord and Microsoft Teams. This demo currently shows the review flow; Microsoft Teams integration is part of the broader framework vision.</p>
+          </div>
+        </aside>
+
+        <aside class="discord-notice" aria-label="Discord bot information">
+          <span class="discord-icon" aria-hidden="true">D</span>
+          <div>
+            <strong>You can add the Discord bot to your server</strong>
+            <p>Invite the bot with the <code>bot</code> and <code>applications.commands</code> scopes, then use <code>/check</code> to review an image. The bot needs to be configured and running to respond; see the project setup instructions to connect it to your backend.</p>
+          </div>
+        </aside>
 
         <div class="workspace">
           <section class="card upload-card" aria-labelledby="upload-title">
