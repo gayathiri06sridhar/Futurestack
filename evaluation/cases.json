@@ -1,0 +1,196 @@
+{
+  "dataset": "Futurestack sample governance cases",
+  "version": "2.1",
+  "notice": "Synthetic evaluation examples. Visual checks use generated image fixtures and measurable ground truth.",
+  "brand_rules": {
+    "brand_name": "Everpine",
+    "tone": [
+      "Clear, calm and practical",
+      "Confident without guarantees or exaggerated superlatives"
+    ],
+    "restricted_terms": [
+      "guaranteed results",
+      "miracle solution"
+    ],
+    "approved_claims": [
+      "Made with 70% recycled aluminum"
+    ],
+    "product_facts": {
+      "Moss bottle capacity": "500 mL",
+      "Moss bottle material": "recycled aluminum"
+    },
+    "review_guidance": "Missing product information is not proof that a claim is false. Flag it as insufficient evidence."
+  },
+  "visual_settings": {
+    "approved_colours": [
+      "#174d38",
+      "#ffffff"
+    ],
+    "thresholds": {
+      "logo_similarity": 0.72,
+      "colour_delta_e": 38,
+      "unapproved_colour_fraction": 0.55,
+      "minimum_wcag_contrast": 4.5
+    },
+    "expected_logo_zone": "bottom_right"
+  },
+  "cases": [
+    {
+      "id": "compliant-approved-claim",
+      "kind": "text",
+      "content": "Meet Moss: a practical 500 mL bottle made with 70% recycled aluminum.",
+      "expected_compliant": true,
+      "expected_severity": "low",
+      "expected_evidence": "500 mL"
+    },
+    {
+      "id": "incorrect-product-specification",
+      "kind": "text",
+      "content": "The Moss bottle holds 750 mL.",
+      "expected_compliant": false,
+      "expected_category": "incorrect_product_information",
+      "expected_severity": "high",
+      "expected_evidence": "500 mL"
+    },
+    {
+      "id": "unsupported-performance-claim",
+      "kind": "text",
+      "content": "The Moss bottle improves focus by 300%.",
+      "expected_compliant": false,
+      "expected_category": "unsupported_claim",
+      "expected_severity": "medium",
+      "expected_evidence": "recycled aluminum"
+    },
+    {
+      "id": "restricted-terminology",
+      "kind": "text",
+      "content": "Our miracle solution delivers guaranteed results.",
+      "expected_compliant": false,
+      "expected_category": "restricted_term",
+      "expected_severity": "high",
+      "expected_evidence": "guaranteed results"
+    },
+    {
+      "id": "off-brand-tone",
+      "kind": "text",
+      "content": "BUY THIS NOW!!! IT'S THE BEST THING EVER!!!",
+      "expected_compliant": false,
+      "expected_category": "tone_violation",
+      "expected_severity": "medium",
+      "expected_evidence": "without guarantees"
+    },
+    {
+      "id": "compliant-unusual-wording",
+      "kind": "text",
+      "content": "Moss carries five hundred millilitres for an everyday trip.",
+      "expected_compliant": true,
+      "expected_severity": "low",
+      "expected_evidence": "500 mL"
+    },
+    {
+      "id": "insufficient-reference-information",
+      "kind": "text",
+      "content": "The Moss bottle is carbon neutral.",
+      "expected_compliant": false,
+      "expected_category": "unsupported_claim",
+      "expected_severity": "medium",
+      "expected_evidence": "recycled aluminum"
+    },
+    {
+      "id": "contradictory-material-percentage",
+      "kind": "text",
+      "content": "Moss is made with 30% recycled aluminum.",
+      "expected_compliant": false,
+      "expected_category": "incorrect_product_information",
+      "expected_severity": "high",
+      "expected_evidence": "70% recycled aluminum"
+    },
+    {
+      "id": "harmless-copy-variation",
+      "kind": "text",
+      "content": "A calm everyday bottle, with a 500 mL capacity.",
+      "expected_compliant": true,
+      "expected_severity": "low",
+      "expected_evidence": "500 mL"
+    },
+    {
+      "id": "ambiguous-recycled-material-claim",
+      "kind": "text",
+      "content": "Made with recycled materials.",
+      "expected_compliant": false,
+      "expected_category": "unsupported_claim",
+      "expected_severity": "medium",
+      "expected_evidence": "recycled aluminum"
+    },
+    {
+      "id": "compliant-neutral-copy",
+      "kind": "text",
+      "content": "Moss is ready for your next outing.",
+      "expected_compliant": true,
+      "expected_severity": "low",
+      "expected_evidence": "500 mL"
+    },
+    {
+      "id": "visual-compliant-creative",
+      "kind": "visual",
+      "fixture": "fixtures/compliant_creative.png",
+      "include_logo_reference": true,
+      "expected_compliant": true,
+      "expected_severity": "low",
+      "expected_categories": []
+    },
+    {
+      "id": "visual-wrong-palette",
+      "kind": "visual",
+      "fixture": "fixtures/wrong_palette.png",
+      "include_logo_reference": true,
+      "expected_compliant": false,
+      "expected_severity": "medium",
+      "expected_categories": [
+        "visual_inconsistency",
+        "logo_violation"
+      ]
+    },
+    {
+      "id": "visual-missing-logo",
+      "kind": "visual",
+      "fixture": "fixtures/missing_logo.png",
+      "include_logo_reference": true,
+      "expected_compliant": false,
+      "expected_severity": "medium",
+      "expected_categories": [
+        "logo_violation"
+      ]
+    },
+    {
+      "id": "visual-misplaced-logo",
+      "kind": "visual",
+      "fixture": "fixtures/misplaced_logo.png",
+      "include_logo_reference": true,
+      "expected_compliant": false,
+      "expected_severity": "medium",
+      "expected_categories": [
+        "logo_placement_violation"
+      ]
+    },
+    {
+      "id": "visual-low-contrast-pair",
+      "kind": "visual",
+      "fixture": "fixtures/low_contrast.png",
+      "contrast_pairs": [
+        {
+          "label": "Fixture campaign text",
+          "foreground": "#a7cfb1",
+          "background": "#ffffff",
+          "minimum_ratio": 4.5
+        }
+      ],
+      "expected_contrast_ratio": 1.72,
+      "expected_compliant": false,
+      "expected_severity": "high",
+      "expected_categories": [
+        "accessibility_issue"
+      ]
+    }
+  ]
+}

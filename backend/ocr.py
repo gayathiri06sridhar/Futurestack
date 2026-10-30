@@ -53,6 +53,4 @@ async def extract_text(image_bytes: bytes, filename: str, content_type: str) -> 
         if isinstance(parsed_text, str) and parsed_text.strip():
             text_parts.append(parsed_text.strip())
     extracted_text = "\n".join(text_parts)
-    if not extracted_text:
-        raise OCRServiceError("No readable text was found in the image.")
     return extracted_text

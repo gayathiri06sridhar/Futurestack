@@ -1,9 +1,15 @@
 import json
+import os
 from pathlib import Path
 from typing import Any
 
 
-RULES_PATH = Path(__file__).resolve().parents[1] / "knowledge" / "brand_rules.json"
+RULES_PATH = Path(
+    os.getenv(
+        "FUTURESTACK_BRAND_RULES",
+        str(Path(__file__).resolve().parents[1] / "knowledge" / "brand_rules.json"),
+    )
+)
 
 
 def load_brand_rules() -> dict[str, Any]:

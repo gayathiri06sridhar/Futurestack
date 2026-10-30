@@ -11,6 +11,7 @@ PROJECT_ROOT = Path(__file__).resolve().parents[1]
 load_dotenv(PROJECT_ROOT / ".env")
 MAX_IMAGE_SIZE = 10 * 1024 * 1024
 BACKEND_URL = os.getenv("BACKEND_URL", "http://127.0.0.1:8000").rstrip("/")
+DISCORD_API_KEY = os.getenv("DISCORD_API_KEY", "")
 
 
 def clipped(value: str, limit: int) -> str:
@@ -21,16 +22,29 @@ def clipped(value: str, limit: int) -> str:
 
 def review_embed(payload: dict[str, Any]) -> discord.Embed:
     review = payload["review"]
-    approved = review["status"] == "approved"
+    no_issues = review["status"] == "approved"
     embed = discord.Embed(
-        title="Brand review: " + ("Approved" if approved else "Changes recommended"),
+        title="AI findings: " + ("No issues detected" if no_issues else "Review needed"),
         description=(
             f"**Overall severity:** {review['severity'].title()}\n"
             f"**Assessment:** {clipped(review['reason'], 700)}\n"
             f"**Recommended next step:** {clipped(review['suggestion'], 500)}"
         ),
-        color=discord.Color.green() if approved else discord.Color.orange(),
+        color=discord.Color.green() if no_issues else discord.Color.orange(),
     )
+    if review.get("review_id"):
+        embed.add_field(name="Review ID", value=review["review_id"], inline=False)
+    if review.get("objective_visual"):
+        visual = review["objective_visual"]
+        embed.add_field(
+            name="Objective visual measurements",
+            value=(
+                f"Palette deviation: {visual['colour_check']['out_of_palette_fraction']}\n"
+                f"Logo similarity: {visual['logo_check']['similarity']}\n"
+                "Measurements are screening aids, not proof of compliance."
+            ),
+            inline=False,
+        )
     extracted_text = payload.get("extracted_text", "").strip()
     if extracted_text:
         embed.add_field(
@@ -101,6 +115,7 @@ async def check(interaction: discord.Interaction, image: discord.Attachment) -> 
         async with httpx.AsyncClient(timeout=120) as client:
             response = await client.post(
                 f"{BACKEND_URL}/check",
+                headers={"X-Discord-Key": DISCORD_API_KEY},
                 files={
                     "file": (
                         image.filename,
@@ -149,10 +164,54 @@ async def check(interaction: discord.Interaction, image: discord.Attachment) -> 
     await interaction.followup.send(embed=embed, ephemeral=True)
 
 
+@bot.tree.command(name="check-text", description="Review marketing copy against the brand rules")
+@discord.app_commands.describe(content="Marketing text to review (maximum 2,000 characters)")
+async def check_text(interaction: discord.Interaction, content: str) -> None:
+    if not content.strip():
+        await interaction.response.send_message(
+            "Provide text content to review.", ephemeral=True
+        )
+        return
+    await interaction.response.defer(thinking=True, ephemeral=True)
+    try:
+        async with httpx.AsyncClient(timeout=120) as client:
+            response = await client.post(
+                f"{BACKEND_URL}/discord/review-text",
+                headers={"X-Discord-Key": DISCORD_API_KEY},
+                json={"text": content.strip(), "content_category": "discord"},
+            )
+    except httpx.RequestError:
+        await interaction.followup.send(
+            "Could not reach the review backend.", ephemeral=True
+        )
+        return
+    if not response.is_success:
+        try:
+            payload = response.json()
+            detail = payload.get("detail", "Review failed.")
+        except ValueError:
+            detail = "The review backend returned an invalid response."
+        await interaction.followup.send(
+            f"Review failed: {clipped(str(detail), 1000)}", ephemeral=True
+        )
+        return
+    try:
+        payload = response.json()
+        embed = review_embed(payload)
+    except (ValueError, KeyError, TypeError):
+        await interaction.followup.send(
+            "The review backend returned an invalid response.", ephemeral=True
+        )
+        return
+    await interaction.followup.send(embed=embed, ephemeral=True)
+
+
 def main() -> None:
     token = os.getenv("DISCORD_BOT_TOKEN")
     if not token:
         raise RuntimeError("DISCORD_BOT_TOKEN is not configured.")
+    if not DISCORD_API_KEY:
+        raise RuntimeError("DISCORD_API_KEY is not configured.")
     bot.run(token)
 
 

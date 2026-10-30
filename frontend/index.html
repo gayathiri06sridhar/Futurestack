@@ -24,6 +24,7 @@
       }
 
       * { box-sizing: border-box; }
+      [hidden] { display: none !important; }
 
       body {
         margin: 0;
@@ -33,7 +34,7 @@
           #f4f6f3;
       }
 
-      button, input { font: inherit; }
+      button, input, textarea, select { font: inherit; }
 
       .shell {
         width: min(100% - 40px, 1040px);
@@ -321,6 +322,60 @@
         line-height: 1.5;
       }
 
+      .submission-text {
+        display: block;
+        width: 100%;
+        min-height: 130px;
+        margin: 0 0 13px;
+        padding: 12px;
+        border: 1px solid var(--line);
+        border-radius: 10px;
+        color: inherit;
+        background: #fff;
+        resize: vertical;
+      }
+
+      .data-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+        gap: 12px;
+        margin: 18px 0;
+      }
+
+      .stat-card, .record-card, .admin-panel {
+        padding: 16px;
+        border: 1px solid var(--line);
+        border-radius: 12px;
+        background: #fff;
+      }
+
+      .stat-card strong { display: block; font-size: 24px; }
+      .stat-card span, .muted { color: var(--muted); font-size: 12px; }
+      .records { display: grid; gap: 12px; margin-top: 15px; }
+      .record-card h3 { margin: 0 0 8px; font-size: 15px; }
+      .record-card p { color: var(--muted); font-size: 12px; line-height: 1.5; }
+      .admin-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px; }
+      .admin-panel { margin-top: 15px; }
+      .admin-panel label { display: block; margin: 10px 0 5px; font-size: 12px; font-weight: 650; }
+      .admin-panel input, .admin-panel textarea, .admin-panel select {
+        width: 100%; padding: 10px; border: 1px solid var(--line); border-radius: 8px;
+      }
+      .admin-panel textarea { min-height: 110px; resize: vertical; }
+      .record-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+      .record-actions .button { min-height: 38px; }
+      .auth-panel { max-width: 460px; margin: 55px auto; padding: 26px; }
+      .auth-panel label { display: block; margin: 12px 0 5px; font-size: 12px; font-weight: 650; }
+      .auth-panel input { width: 100%; padding: 11px; border: 1px solid var(--line); border-radius: 8px; }
+      .top-actions { display: flex; gap: 12px; align-items: center; }
+      .small-button { border: 0; color: var(--green); background: transparent; text-decoration: underline; cursor: pointer; }
+
+      .submission-text:focus-visible,
+      .dropzone:focus-within,
+      button:focus-visible {
+        outline: 3px solid rgba(29, 103, 75, .24);
+        outline-offset: 2px;
+      }
+
       .side-card { padding: 23px; }
 
       .steps {
@@ -476,14 +531,35 @@
     <div class="shell">
       <header>
         <div class="brand"><span class="brand-mark" aria-hidden="true">F</span> Futurestack</div>
-        <span class="header-note">Brand governance assistant</span>
+        <div class="top-actions">
+          <span class="header-note" id="account-label">Brand governance assistant</span>
+          <button class="button button-secondary" id="logout-button" type="button" hidden>Sign out</button>
+        </div>
       </header>
 
+      <section class="card auth-panel" id="auth-panel" aria-labelledby="auth-title">
+        <span class="eyebrow">Secure workspace</span>
+        <h1 class="section-heading" id="auth-title">Sign in to Futurestack</h1>
+        <p class="section-copy" id="auth-description">Use your organisation account to submit or review content.</p>
+        <form id="auth-form">
+          <label for="auth-email">Email</label>
+          <input id="auth-email" name="email" type="email" autocomplete="username" required maxlength="254">
+          <label for="auth-password">Password</label>
+          <input id="auth-password" name="password" type="password" autocomplete="current-password" required minlength="12" maxlength="256">
+          <div class="actions">
+            <button class="button button-primary" id="auth-submit" type="submit">Sign in</button>
+            <button class="button button-secondary" id="auth-toggle" type="button">Create creator account</button>
+          </div>
+          <div class="notice" id="auth-notice" role="alert"></div>
+        </form>
+      </section>
+
+      <div id="application" hidden>
       <main>
         <section class="intro" aria-labelledby="page-title">
           <span class="eyebrow">Clear, consistent, on-brand</span>
-          <h1 id="page-title">Give every image a brand check.</h1>
-          <p>Upload a marketing image to check its text against your approved brand rules and product facts.</p>
+          <h1 id="page-title">Make every campaign on-brand.</h1>
+          <p>Review text, images and documents against your approved brand rules and product facts.</p>
         </section>
 
         <aside class="demo-notice" aria-label="Demo notice">
@@ -502,29 +578,42 @@
           </div>
         </aside>
 
-        <div class="workspace">
+        <section class="card side-card" aria-labelledby="dashboard-title">
+          <h2 class="section-heading" id="dashboard-title">Workspace dashboard</h2>
+          <p class="section-copy" id="dashboard-description">Live figures from persisted submissions.</p>
+          <div class="data-grid" id="dashboard-stats"></div>
+          <section aria-labelledby="records-title">
+            <h3 class="section-heading" id="records-title">Your submissions</h3>
+            <div class="records" id="submission-list"></div>
+          </section>
+        </section>
+
+        <div class="workspace" id="creator-workspace">
           <section class="card upload-card" aria-labelledby="upload-title">
-            <h2 class="section-heading" id="upload-title">Upload an image</h2>
-            <p class="section-copy">Choose an image to receive a review and practical feedback.</p>
+            <h2 class="section-heading" id="upload-title">Submit content for review</h2>
+            <p class="section-copy">Paste copy or attach an image or text-based document.</p>
 
             <form id="review-form">
+              <input id="parent-review-id" name="parent_review_id" type="hidden" value="">
+              <label class="section-copy" for="submission-text">Marketing copy</label>
+              <textarea class="submission-text" id="submission-text" name="text" maxlength="100000" placeholder="Paste a caption, product description or campaign claim."></textarea>
               <label class="dropzone" id="dropzone" for="image-file">
                 <span>
                   <span class="upload-icon" aria-hidden="true">↑</span>
                   <img class="preview" id="preview" alt="Preview of selected image">
-                  <span class="drop-title" id="drop-title">Drop your image here or browse files</span>
-                  <span class="drop-hint" id="drop-hint">PNG, JPG, GIF or WebP · Up to 10 MB</span>
+                  <span class="drop-title" id="drop-title">Attach an image or document</span>
+                  <span class="drop-hint" id="drop-hint">PNG, JPG, GIF, WebP, PDF, TXT, MD, CSV or JSON · Up to 10 MB</span>
                   <span class="file-name" id="file-name"></span>
                 </span>
-                <input id="image-file" name="file" type="file" accept="image/*" required>
+                <input id="image-file" name="file" type="file" accept="image/png,image/jpeg,image/gif,image/webp,.pdf,.txt,.md,.csv,.json">
               </label>
 
               <div class="notice" id="notice" role="alert"></div>
               <div class="actions">
-                <button class="button button-primary" id="submit-button" type="submit">Review image</button>
+                <button class="button button-primary" id="submit-button" type="submit">Review content</button>
                 <button class="button button-secondary" id="clear-button" type="reset">Clear</button>
               </div>
-              <p class="privacy-note">Your image is sent to the configured OCR and AI providers for analysis. Reviews are advisory; a human makes the final decision.</p>
+              <p class="privacy-note">Images are sent to the configured OCR and AI providers; text and documents are sent to the AI provider. Do not submit confidential material unless your organisation has approved those providers. AI reviews are advisory, not approvals.</p>
             </form>
           </section>
 
@@ -532,15 +621,105 @@
             <h2 class="section-heading" id="steps-title">How it works</h2>
             <p class="section-copy">A quick review, grounded in your brand guidance.</p>
             <ol class="steps">
-              <li class="step"><span class="step-number">1</span><span><strong>Upload your creative</strong><span>Choose an image with readable marketing copy.</span></span></li>
-              <li class="step"><span class="step-number">2</span><span><strong>We read the image</strong><span>Text is extracted and compared with the configured brand rules.</span></span></li>
-              <li class="step"><span class="step-number">3</span><span><strong>Get useful feedback</strong><span>See potential issues, reasoning and suggested next steps.</span></span></li>
+              <li class="step"><span class="step-number">1</span><span><strong>Submit your content</strong><span>Paste copy or attach an image or supported document.</span></span></li>
+              <li class="step"><span class="step-number">2</span><span><strong>Retrieve relevant guidance</strong><span>Brand rules and indexed knowledge provide evidence to the review.</span></span></li>
+              <li class="step"><span class="step-number">3</span><span><strong>Review the recommendations</strong><span>See potential issues and evidence; a person decides what happens next.</span></span></li>
             </ol>
           </aside>
         </div>
 
         <section class="card result" id="result" aria-live="polite" aria-labelledby="result-title"></section>
+
+        <section class="card side-card" id="reviewer-workspace" hidden aria-labelledby="queue-title">
+          <h2 class="section-heading" id="queue-title">Pending human review</h2>
+          <p class="section-copy">Decisions are recorded as your authenticated account; AI advice is never the final approval.</p>
+          <label for="severity-filter">Filter by severity</label>
+          <select id="severity-filter">
+            <option value="">All severities</option>
+            <option value="high">High risk</option>
+            <option value="medium">Medium risk</option>
+            <option value="low">Low risk</option>
+          </select>
+          <div class="records" id="review-queue"></div>
+          <h3 class="section-heading">Review history</h3>
+          <div class="records" id="review-history"></div>
+        </section>
+
+        <section class="card side-card" id="admin-workspace" hidden aria-labelledby="admin-title">
+          <h2 class="section-heading" id="admin-title">Administration</h2>
+          <div class="admin-grid">
+            <form class="admin-panel" id="user-form">
+              <h3 class="section-heading">Create user</h3>
+              <label for="new-user-email">Email</label>
+              <input id="new-user-email" type="email" required maxlength="254">
+              <label for="new-user-password">Temporary password (12+ characters)</label>
+              <input id="new-user-password" type="password" required minlength="12" maxlength="256">
+              <label for="new-user-role">Role</label>
+              <select id="new-user-role"><option value="creator">Creator</option><option value="reviewer">Reviewer</option><option value="admin">Admin</option></select>
+              <button class="button button-primary" type="submit">Create account</button>
+              <div class="records" id="user-list"></div>
+            </form>
+            <form class="admin-panel" id="rules-form">
+              <h3 class="section-heading">Brand rules JSON</h3>
+              <textarea id="rules-json" spellcheck="false" aria-label="Brand rules JSON"></textarea>
+              <button class="button button-primary" type="submit">Save brand rules</button>
+            </form>
+            <form class="admin-panel" id="knowledge-form">
+              <h3 class="section-heading">Add knowledge document</h3>
+              <label for="knowledge-title">Title</label><input id="knowledge-title" required>
+              <label for="knowledge-source">Source</label><input id="knowledge-source" value="admin" required>
+              <label for="knowledge-content">Guidelines and approved facts</label><textarea id="knowledge-content" required></textarea>
+              <button class="button button-primary" type="submit">Index knowledge</button>
+            </form>
+            <section class="admin-panel" aria-labelledby="knowledge-library-title">
+              <h3 class="section-heading" id="knowledge-library-title">Knowledge library</h3>
+              <div class="records" id="knowledge-list"></div>
+            </section>
+            <form class="admin-panel" id="visual-guidelines-form">
+              <h3 class="section-heading">Upload visual guidelines</h3>
+              <label for="visual-guidelines-file">PDF or UTF-8 text document</label>
+              <input id="visual-guidelines-file" type="file" accept=".pdf,.txt,.md,.csv,.json" required>
+              <button class="button button-primary" type="submit">Index visual guidelines</button>
+            </form>
+            <form class="admin-panel" id="visual-settings-form">
+              <h3 class="section-heading">Visual rules</h3>
+              <label for="approved-colours">Approved colours (comma-separated hex values)</label>
+              <input id="approved-colours" placeholder="#1d674b, #ffffff">
+              <label for="logo-threshold">Logo similarity threshold (0–1)</label>
+              <input id="logo-threshold" type="number" min="0" max="1" step="0.01" value="0.72">
+              <label for="expected-logo-zone">Expected logo placement</label>
+              <select id="expected-logo-zone">
+                <option value="any">Any placement</option>
+                <option value="top_left">Top left</option>
+                <option value="top_right">Top right</option>
+                <option value="bottom_left">Bottom left</option>
+                <option value="bottom_right">Bottom right</option>
+                <option value="center">Center</option>
+              </select>
+              <label for="colour-delta-threshold">Maximum CIE76 colour distance</label>
+              <input id="colour-delta-threshold" type="number" min="0" max="441.7" step="0.1" value="38">
+              <label for="out-of-palette-threshold">Maximum out-of-palette pixel fraction (0–1)</label>
+              <input id="out-of-palette-threshold" type="number" min="0" max="1" step="0.01" value="0.55">
+              <label for="minimum-contrast-threshold">Default minimum WCAG contrast ratio</label>
+              <input id="minimum-contrast-threshold" type="number" min="1" max="21" step="0.1" value="4.5">
+              <label for="contrast-pairs">Configured text/background colour pairs (JSON)</label>
+              <textarea id="contrast-pairs" placeholder='[{"label":"Body copy","foreground":"#222222","background":"#ffffff","minimum_ratio":4.5}]'></textarea>
+              <label for="logo-asset">Approved logo</label>
+              <input id="logo-asset" type="file" accept="image/png,image/jpeg,image/gif,image/webp">
+              <button class="button button-primary" type="submit">Save visual rules</button>
+              <div class="records" id="asset-list"></div>
+            </form>
+          </div>
+          <div class="record-actions">
+            <button class="button button-secondary" id="audit-button" type="button">Load audit log</button>
+            <button class="button button-secondary" id="verify-audit-button" type="button">Verify audit chain</button>
+            <button class="button button-secondary" id="retention-button" type="button">Run retention purge</button>
+            <button class="button button-secondary" id="evaluation-button" type="button">Load latest evaluation</button>
+          </div>
+          <pre class="extracted" id="admin-output"></pre>
+        </section>
       </main>
+      </div>
 
       <footer>AI feedback is advisory and is not a legal or brand approval. Always have a human review the final creative.</footer>
     </div>
@@ -548,6 +727,7 @@
     <script>
       const form = document.querySelector("#review-form");
       const fileInput = document.querySelector("#image-file");
+      const textInput = document.querySelector("#submission-text");
       const dropzone = document.querySelector("#dropzone");
       const preview = document.querySelector("#preview");
       const fileName = document.querySelector("#file-name");
@@ -556,7 +736,348 @@
       const notice = document.querySelector("#notice");
       const result = document.querySelector("#result");
       const submitButton = document.querySelector("#submit-button");
+      const authPanel = document.querySelector("#auth-panel");
+      const application = document.querySelector("#application");
+      const authForm = document.querySelector("#auth-form");
+      const authNotice = document.querySelector("#auth-notice");
+      const authToggle = document.querySelector("#auth-toggle");
+      const logoutButton = document.querySelector("#logout-button");
+      let csrfToken = "";
+      let account = null;
+      let registrationMode = false;
       let previewUrl = null;
+
+      async function apiFetch(url, options = {}) {
+        const headers = new Headers(options.headers || {});
+        const method = (options.method || "GET").toUpperCase();
+        if (!["GET", "HEAD", "OPTIONS"].includes(method) && csrfToken) {
+          headers.set("X-CSRF-Token", csrfToken);
+        }
+        const response = await fetch(url, { ...options, headers, credentials: "same-origin" });
+        let payload;
+        try {
+          payload = await response.json();
+        } catch {
+          throw new Error("The server returned an invalid response.");
+        }
+        if (!response.ok) {
+          throw new Error(typeof payload.detail === "string" ? payload.detail : "The request failed.");
+        }
+        return payload;
+      }
+
+      function showAuthNotice(message) {
+        authNotice.textContent = message;
+        authNotice.classList.add("is-visible");
+      }
+
+      function authError(error) {
+        showAuthNotice(error instanceof Error ? error.message : "The request failed.");
+      }
+
+      function setSignedIn(user) {
+        account = user;
+        authPanel.hidden = true;
+        application.hidden = false;
+        logoutButton.hidden = false;
+        document.querySelector("#account-label").textContent = `${user.email} · ${user.role}`;
+        const creator = user.role === "creator";
+        const reviewer = user.role === "reviewer" || user.role === "admin";
+        document.querySelector("#creator-workspace").hidden = !creator;
+        document.querySelector("#reviewer-workspace").hidden = !reviewer;
+        document.querySelector("#admin-workspace").hidden = user.role !== "admin";
+        document.querySelector("#records-title").textContent = creator ? "Your submissions" : "Recent activity";
+        refreshWorkspace().catch(authError);
+      }
+
+      function signOut() {
+        account = null;
+        csrfToken = "";
+        application.hidden = true;
+        authPanel.hidden = false;
+        logoutButton.hidden = true;
+        document.querySelector("#account-label").textContent = "Brand governance assistant";
+        authForm.reset();
+      }
+
+      function renderStats(stats) {
+        const container = document.querySelector("#dashboard-stats");
+        container.replaceChildren();
+        for (const [label, value] of Object.entries(stats)) {
+          const card = document.createElement("div");
+          card.className = "stat-card";
+          addText(card, "strong", "", String(value));
+          addText(card, "span", "", label.replaceAll("_", " "));
+          container.append(card);
+        }
+      }
+
+      function renderCreatorRecords(records) {
+        const container = document.querySelector("#submission-list");
+        container.replaceChildren();
+        if (!records.length) {
+          addText(container, "p", "muted", "No submissions yet. Submit a campaign to begin.");
+          return;
+        }
+        for (const record of records) {
+          const card = document.createElement("article");
+          card.className = "record-card";
+          addText(card, "h3", "", `${record.filename} · revision ${record.revision_number}`);
+          addText(card, "p", "", `Human status: ${record.decision.replaceAll("_", " ")} · AI severity: ${record.review.severity}`);
+          addText(card, "p", "", record.review.reason || "AI review completed.");
+          if (record.decision_reason) addText(card, "p", "", `Reviewer comment (${record.reviewer || "reviewer"}): ${record.decision_reason}`);
+          const controls = document.createElement("div");
+          controls.className = "record-actions";
+          const historyButton = document.createElement("button");
+          historyButton.className = "button button-secondary";
+          historyButton.type = "button";
+          historyButton.textContent = "Revision history";
+          historyButton.addEventListener("click", () => loadSubmissionHistory(record.review_id, card));
+          controls.append(historyButton);
+          const deleteButton = document.createElement("button");
+          deleteButton.className = "button button-secondary";
+          deleteButton.type = "button";
+          deleteButton.textContent = "Delete submission data";
+          deleteButton.addEventListener("click", async () => {
+            if (!window.confirm("Delete all revisions and stored content for this submission? Audit metadata will remain.")) return;
+            try {
+              await apiFetch(`/my/submissions/${encodeURIComponent(record.review_id)}`, { method: "DELETE" });
+              await refreshWorkspace();
+            } catch (error) { showNotice(error.message); }
+          });
+          controls.append(deleteButton);
+          if (record.decision === "changes_requested") {
+            const reviseButton = document.createElement("button");
+            reviseButton.className = "button button-primary";
+            reviseButton.type = "button";
+            reviseButton.textContent = "Revise and resubmit";
+            reviseButton.addEventListener("click", () => {
+              document.querySelector("#submission-text").value = record.submitted_text || "";
+              document.querySelector("#parent-review-id").value = record.review_id;
+              document.querySelector("#upload-title").textContent = "Revise requested changes";
+              document.querySelector("#submission-text").focus();
+            });
+            controls.append(reviseButton);
+          }
+          card.append(controls);
+          container.append(card);
+        }
+      }
+
+      async function loadSubmissionHistory(reviewId, card) {
+        try {
+          const detail = await apiFetch(`/my/submissions/${encodeURIComponent(reviewId)}`);
+          const history = document.createElement("div");
+          history.className = "records";
+          for (const [index, revision] of detail.revision_history.entries()) {
+            const entry = document.createElement("div");
+            entry.className = "issue";
+            addText(entry, "strong", "", `Revision ${revision.revision_number} · ${revision.decision.replaceAll("_", " ")}`);
+            addText(entry, "p", "", `Submitted ${new Date(revision.created_at).toLocaleString()}`);
+            const content = document.createElement("blockquote");
+            content.textContent = revision.submitted_text;
+            entry.append(content);
+            if (index > 0) {
+              const comparison = document.createElement("div");
+              comparison.className = "revision-comparison";
+              addText(comparison, "strong", "", `Revision comparison · ${index} → ${revision.revision_number}`);
+              addText(comparison, "p", "muted", `Previous: ${detail.revision_history[index - 1].submitted_text}`);
+              addText(comparison, "p", "muted", `Current: ${revision.submitted_text}`);
+              entry.append(comparison);
+            }
+            if (revision.reviewer) addText(entry, "p", "", `Decision by ${revision.reviewer} at ${revision.decided_at ? new Date(revision.decided_at).toLocaleString() : "unknown time"}`);
+            if (revision.decision_reason) addText(entry, "p", "", revision.decision_reason);
+            history.append(entry);
+          }
+          card.append(history);
+        } catch (error) {
+          showNotice(error instanceof Error ? error.message : "Could not load revision history.");
+        }
+      }
+
+      function renderReviewerRecords(records, container, decisionsEnabled) {
+        container.replaceChildren();
+        if (!records.length) {
+          addText(container, "p", "muted", decisionsEnabled ? "No pending submissions match this filter." : "No review history yet.");
+          return;
+        }
+        for (const record of records) {
+          const card = document.createElement("article");
+          card.className = "record-card";
+          addText(card, "h3", "", `${record.filename} · ${record.review.severity} risk`);
+          addText(card, "p", "", `Creator: ${record.owner_email || "Discord submission"} · revision ${record.revision_number}`);
+          addText(card, "p", "", record.review.reason || "Review completed.");
+          const content = document.createElement("blockquote");
+          content.textContent = record.submitted_text || "";
+          card.append(content);
+          for (const issue of record.review.issues || []) {
+            const details = document.createElement("div");
+            details.className = "issue";
+            addText(details, "strong", "", `${issue.type.replaceAll("_", " ")} · ${issue.severity}`);
+            addText(details, "p", "", issue.text || "");
+            addText(details, "p", "", issue.reason || "");
+            if (issue.evidence) addText(details, "p", "", `Evidence: ${issue.evidence}`);
+            if (issue.source_document) addText(details, "p", "", `Source: ${issue.source_document}`);
+            card.append(details);
+          }
+          const visual = record.review.objective_visual;
+          if (visual) {
+            const visualText = `Objective visual measurements — palette out-of-range: ${visual.colour_check.out_of_palette_fraction ?? "not configured"}; logo similarity: ${visual.logo_check.similarity ?? "not configured"}. Contrast values are configured-pair calculations, not pixel detection.`;
+            addText(card, "p", "muted", visualText);
+          }
+          if (decisionsEnabled) {
+            const comment = document.createElement("textarea");
+            comment.className = "submission-text";
+            comment.placeholder = "Reviewer comment (required for request changes or reject)";
+            comment.setAttribute("aria-label", "Reviewer comment");
+            const controls = document.createElement("div");
+            controls.className = "record-actions";
+            for (const [decision, label] of [
+              ["approved", "Approve"],
+              ["changes_requested", "Request changes"],
+              ["rejected", "Reject"]
+            ]) {
+              const button = document.createElement("button");
+              button.type = "button";
+              button.className = decision === "approved" ? "button button-primary" : "button button-secondary";
+              button.textContent = label;
+              button.addEventListener("click", async () => {
+                try {
+                  await apiFetch(`/reviews/${encodeURIComponent(record.review_id)}/decision`, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ decision, reason: comment.value.trim() })
+                  });
+                  await refreshWorkspace();
+                } catch (error) {
+                  showNotice(error instanceof Error ? error.message : "Decision could not be saved.");
+                }
+              });
+              controls.append(button);
+            }
+            card.append(comment, controls);
+          } else {
+            addText(card, "p", "", `Human status: ${record.decision.replaceAll("_", " ")}`);
+            if (record.reviewer) addText(card, "p", "muted", `Decision by ${record.reviewer} at ${record.decided_at ? new Date(record.decided_at).toLocaleString() : "unknown time"}`);
+            if (record.decision_reason) addText(card, "p", "", record.decision_reason);
+          }
+          container.append(card);
+        }
+      }
+
+      async function refreshWorkspace() {
+        if (!account) return;
+        const stats = await apiFetch("/dashboard");
+        renderStats(stats);
+        if (account.role === "creator") {
+          const records = await apiFetch("/my/submissions");
+          renderCreatorRecords(records);
+        } else {
+          const severity = document.querySelector("#severity-filter").value;
+          const pending = await apiFetch(`/reviews?decision=pending${severity ? `&severity=${encodeURIComponent(severity)}` : ""}`);
+          const history = await apiFetch("/reviews?limit=200");
+          renderReviewerRecords(pending, document.querySelector("#review-queue"), true);
+          renderReviewerRecords(history.filter(item => item.decision !== "pending"), document.querySelector("#review-history"), false);
+        }
+        if (account.role === "admin") await refreshAdminPanel();
+      }
+
+      async function refreshAdminPanel() {
+        const users = await apiFetch("/admin/users");
+        const userList = document.querySelector("#user-list");
+        userList.replaceChildren();
+        for (const user of users) {
+          const row = document.createElement("div");
+          row.className = "issue";
+          addText(row, "p", "", `${user.email} · ${user.role} · ${user.is_active ? "active" : "disabled"}`);
+          if (user.user_id !== account.user_id) {
+            const role = document.createElement("select");
+            for (const value of ["creator", "reviewer", "admin"]) {
+              const option = document.createElement("option");
+              option.value = value;
+              option.textContent = value;
+              option.selected = value === user.role;
+              role.append(option);
+            }
+            role.addEventListener("change", async () => {
+              try {
+                await apiFetch(`/admin/users/${encodeURIComponent(user.user_id)}`, {
+                  method: "PATCH",
+                  headers: { "Content-Type": "application/json" },
+                  body: JSON.stringify({ role: role.value })
+                });
+              } catch (error) { showNotice(error.message); }
+            });
+            const toggle = document.createElement("button");
+            toggle.type = "button";
+            toggle.className = "button button-secondary";
+            toggle.textContent = user.is_active ? "Disable" : "Enable";
+            toggle.addEventListener("click", async () => {
+              try {
+                await apiFetch(`/admin/users/${encodeURIComponent(user.user_id)}`, {
+                  method: "PATCH",
+                  headers: { "Content-Type": "application/json" },
+                  body: JSON.stringify({ is_active: !user.is_active })
+                });
+                await refreshAdminPanel();
+              } catch (error) { showNotice(error.message); }
+            });
+            row.append(role, toggle);
+          }
+          userList.append(row);
+        }
+        const rules = await apiFetch("/admin/brand-rules");
+        document.querySelector("#rules-json").value = JSON.stringify(rules, null, 2);
+        const visual = await apiFetch("/admin/visual");
+        document.querySelector("#approved-colours").value = (visual.settings.approved_colours || []).join(", ");
+        document.querySelector("#logo-threshold").value = visual.settings.thresholds?.logo_similarity ?? 0.72;
+        document.querySelector("#expected-logo-zone").value = visual.settings.expected_logo_zone ?? "any";
+        document.querySelector("#colour-delta-threshold").value = visual.settings.thresholds?.colour_delta_e ?? 38;
+        document.querySelector("#out-of-palette-threshold").value = visual.settings.thresholds?.unapproved_colour_fraction ?? 0.55;
+        document.querySelector("#minimum-contrast-threshold").value = visual.settings.thresholds?.minimum_wcag_contrast ?? 4.5;
+        document.querySelector("#contrast-pairs").value = JSON.stringify(visual.settings.contrast_pairs || [], null, 2);
+        const assets = document.querySelector("#asset-list");
+        assets.replaceChildren();
+        for (const asset of visual.assets) {
+          const line = document.createElement("div");
+          line.className = "issue";
+          addText(line, "p", "", `${asset.name} · ${asset.asset_type}`);
+          const remove = document.createElement("button");
+          remove.className = "button button-secondary";
+          remove.type = "button";
+          remove.textContent = "Remove";
+          remove.addEventListener("click", async () => {
+            try {
+              await apiFetch(`/admin/visual/assets/${encodeURIComponent(asset.asset_id)}`, { method: "DELETE" });
+              await refreshAdminPanel();
+            } catch (error) { showNotice(error.message); }
+          });
+          line.append(remove);
+          assets.append(line);
+        }
+        const knowledgeDocuments = await apiFetch("/knowledge/documents");
+        const knowledgeList = document.querySelector("#knowledge-list");
+        knowledgeList.replaceChildren();
+        for (const item of knowledgeDocuments) {
+          const line = document.createElement("div");
+          line.className = "issue";
+          addText(line, "p", "", `${item.title} · ${item.source}`);
+          if (item.document_id !== "brand-rules") {
+            const remove = document.createElement("button");
+            remove.className = "button button-secondary";
+            remove.type = "button";
+            remove.textContent = "Remove";
+            remove.addEventListener("click", async () => {
+              try {
+                await apiFetch(`/knowledge/documents/${encodeURIComponent(item.document_id)}`, { method: "DELETE" });
+                await refreshAdminPanel();
+              } catch (error) { showNotice(error.message); }
+            });
+            line.append(remove);
+          }
+          knowledgeList.append(line);
+        }
+      }
 
       function showNotice(message) {
         notice.textContent = message;
@@ -579,33 +1100,30 @@
           preview.removeAttribute("src");
           fileName.textContent = "";
           fileName.style.display = "none";
-          dropTitle.textContent = "Drop your image here or browse files";
-          dropHint.textContent = "PNG, JPG, GIF or WebP · Up to 10 MB";
+          dropTitle.textContent = "Attach an image or document";
+          dropHint.textContent = "PNG, JPG, GIF, WebP, PDF, TXT, MD, CSV or JSON · Up to 10 MB";
           if (previewUrl) URL.revokeObjectURL(previewUrl);
           previewUrl = null;
           return;
         }
 
-        if (!file.type.startsWith("image/")) {
-          fileInput.value = "";
-          showNotice("Please choose an image file.");
-          return;
-        }
         if (file.size > 10 * 1024 * 1024) {
           fileInput.value = "";
-          showNotice("This image is larger than 10 MB. Choose a smaller file.");
+          showNotice("This file is larger than 10 MB. Choose a smaller file.");
           return;
         }
 
         if (previewUrl) URL.revokeObjectURL(previewUrl);
-        previewUrl = URL.createObjectURL(file);
-        preview.src = previewUrl;
-        preview.hidden = false;
-        preview.style.display = "block";
+        const isImage = file.type.startsWith("image/");
+        preview.hidden = !isImage;
+        preview.style.display = isImage ? "block" : "none";
+        preview.removeAttribute("src");
+        previewUrl = isImage ? URL.createObjectURL(file) : null;
+        if (previewUrl) preview.src = previewUrl;
         fileName.textContent = file.name;
         fileName.style.display = "block";
-        dropTitle.textContent = "Image ready for review";
-        dropHint.textContent = "Choose another image to replace it";
+        dropTitle.textContent = "File ready for review";
+        dropHint.textContent = "Choose another file to replace it";
       }
 
       function addText(parent, tag, className, text) {
@@ -623,15 +1141,23 @@
         }
 
         result.replaceChildren();
+        const claimsVerified = (review.claim_checks || []).every(
+          claim => claim.outcome === "verified"
+        );
+        const noFindings = review.status === "approved" && claimsVerified;
         const header = document.createElement("div");
         header.className = "result-header";
         const summary = document.createElement("div");
-        addText(summary, "h2", "result-title", review.status === "approved" ? "Looking good" : "Changes recommended");
+        addText(summary, "h2", "result-title", noFindings ? "No issues detected" : "Review findings");
         addText(summary, "p", "result-reason", review.reason || "Review complete.");
+        if (Number.isInteger(review.risk_score)) {
+          addText(summary, "p", "result-reason", `Qualitative risk triage: ${review.risk_score}/100 — ${review.risk_score_explanation || "not a calibrated probability."}`);
+        }
         header.append(summary);
-        const badge = addText(header, "span", `badge ${review.status === "approved" ? "badge-approved" : "badge-changes"}`, review.severity || "low");
+        const badge = addText(header, "span", `badge ${noFindings ? "badge-approved" : "badge-changes"}`, review.severity || "low");
         badge.setAttribute("aria-label", `Overall severity: ${review.severity || "low"}`);
         result.append(header);
+        addText(result, "p", "privacy-note", `Review ID: ${review.review_id || "pending"} · Human decision: pending. AI findings do not approve content.`);
 
         const suggestion = document.createElement("p");
         suggestion.className = "result-suggestion";
@@ -639,6 +1165,27 @@
         label.textContent = "Recommended next step: ";
         suggestion.append(label, document.createTextNode(review.suggestion || "Have a human review the creative."));
         result.append(suggestion);
+
+        if (Array.isArray(review.claim_checks) && review.claim_checks.length) {
+          const claimSection = document.createElement("section");
+          claimSection.className = "issues";
+          addText(claimSection, "h3", "section-heading", "Factual claim checks");
+          for (const claim of review.claim_checks) {
+            const card = document.createElement("article");
+            card.className = "issue";
+            addText(card, "p", "issue-type", claim.outcome.replaceAll("_", " "));
+            if (claim.claim) {
+              const quote = document.createElement("blockquote");
+              quote.textContent = claim.claim;
+              card.append(quote);
+            }
+            if (claim.explanation) addText(card, "p", "", claim.explanation);
+            if (claim.evidence) addText(card, "p", "", `Evidence: ${claim.evidence}`);
+            if (claim.source_document) addText(card, "p", "", `Source: ${claim.source_document}`);
+            claimSection.append(card);
+          }
+          result.append(claimSection);
+        }
 
         if (review.issues.length) {
           const issues = document.createElement("div");
@@ -658,9 +1205,43 @@
             }
             if (issue.reason) addText(card, "p", "", `Why: ${issue.reason}`);
             if (issue.suggestion) addText(card, "p", "", `Suggestion: ${issue.suggestion}`);
+            if (issue.source_document) addText(card, "p", "", `Source: ${issue.source_document}`);
+            if (issue.evidence) addText(card, "p", "", `Evidence: ${issue.evidence}`);
+            if (issue.confidence_level) addText(card, "p", "", `Confidence: ${issue.confidence_level} (qualitative, not calibrated)`);
             issues.append(card);
           }
           result.append(issues);
+        }
+
+        if (payload.retrieval) {
+          const sources = payload.retrieval.sources || [];
+          const retrievalInfo = sources.length
+            ? `Retrieved with ${payload.retrieval.mode}: ${sources.map(source => source.title).join(", ")}`
+            : `Retrieval mode: ${payload.retrieval.mode || "unknown"}; no matching evidence found.`;
+          addText(result, "p", "privacy-note", retrievalInfo);
+        }
+
+        if (payload.objective_visual) {
+          const visual = payload.objective_visual;
+          const measurements = document.createElement("section");
+          measurements.className = "issues";
+          addText(measurements, "h3", "section-heading", "Objective visual measurements");
+          addText(
+            measurements,
+            "p",
+            "muted",
+            `Palette out-of-range: ${visual.colour_check.out_of_palette_fraction ?? "not configured"} · Logo similarity: ${visual.logo_check.similarity ?? "not configured"}`
+          );
+          for (const check of visual.contrast_checks || []) {
+            addText(
+              measurements,
+              "p",
+              "muted",
+              `${check.label}: ${check.ratio}:1 ${check.passes ? "passes" : "fails"} configured WCAG ${check.minimum_ratio}:1. ${check.note}`
+            );
+          }
+          addText(measurements, "p", "privacy-note", "These are objective screening measurements, not a complete visual compliance certification.");
+          result.append(measurements);
         }
 
         if (typeof payload.extracted_text === "string" && payload.extracted_text.trim()) {
@@ -673,6 +1254,198 @@
         result.classList.add("is-visible");
         result.scrollIntoView({ behavior: "smooth", block: "start" });
       }
+
+      authToggle.addEventListener("click", () => {
+        registrationMode = !registrationMode;
+        document.querySelector("#auth-title").textContent = registrationMode ? "Create creator account" : "Sign in to Futurestack";
+        document.querySelector("#auth-description").textContent = registrationMode
+          ? "New accounts receive the Creator role. An administrator can assign reviewer access."
+          : "Use your organisation account to submit or review content.";
+        document.querySelector("#auth-password").autocomplete = registrationMode ? "new-password" : "current-password";
+        document.querySelector("#auth-submit").textContent = registrationMode ? "Create account" : "Sign in";
+        authToggle.textContent = registrationMode ? "Back to sign in" : "Create creator account";
+        authNotice.classList.remove("is-visible");
+      });
+
+      authForm.addEventListener("submit", async event => {
+        event.preventDefault();
+        authNotice.classList.remove("is-visible");
+        const credentials = {
+          email: document.querySelector("#auth-email").value.trim(),
+          password: document.querySelector("#auth-password").value
+        };
+        try {
+          if (registrationMode) {
+            await apiFetch("/auth/register", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify(credentials)
+            });
+            registrationMode = false;
+            document.querySelector("#auth-title").textContent = "Sign in to Futurestack";
+            document.querySelector("#auth-submit").textContent = "Sign in";
+            document.querySelector("#auth-toggle").textContent = "Create creator account";
+            document.querySelector("#auth-password").autocomplete = "current-password";
+          }
+          const result = await apiFetch("/auth/login", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(credentials)
+          });
+          csrfToken = result.csrf_token;
+          setSignedIn(result.user);
+        } catch (error) {
+          authError(error);
+        }
+      });
+
+      logoutButton.addEventListener("click", async () => {
+        try {
+          await apiFetch("/auth/logout", { method: "POST" });
+        } catch (error) {
+          showNotice(error instanceof Error ? error.message : "Sign-out request failed.");
+        } finally {
+          signOut();
+        }
+      });
+
+      document.querySelector("#severity-filter").addEventListener("change", () => {
+        refreshWorkspace().catch(error => showNotice(error.message));
+      });
+
+      document.querySelector("#user-form").addEventListener("submit", async event => {
+        event.preventDefault();
+        try {
+          await apiFetch("/admin/users", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              email: document.querySelector("#new-user-email").value.trim(),
+              password: document.querySelector("#new-user-password").value,
+              role: document.querySelector("#new-user-role").value
+            })
+          });
+          event.target.reset();
+          await refreshAdminPanel();
+        } catch (error) { showNotice(error.message); }
+      });
+
+      document.querySelector("#rules-form").addEventListener("submit", async event => {
+        event.preventDefault();
+        try {
+          const rules = JSON.parse(document.querySelector("#rules-json").value);
+          await apiFetch("/admin/brand-rules", {
+            method: "PUT",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(rules)
+          });
+          showNotice("Brand rules saved and re-indexed.");
+          await refreshAdminPanel();
+        } catch (error) { showNotice(error.message || "Brand rules must be valid JSON."); }
+      });
+
+      document.querySelector("#knowledge-form").addEventListener("submit", async event => {
+        event.preventDefault();
+        try {
+          await apiFetch("/knowledge/documents", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              title: document.querySelector("#knowledge-title").value.trim(),
+              source: document.querySelector("#knowledge-source").value.trim(),
+              content: document.querySelector("#knowledge-content").value
+            })
+          });
+          event.target.reset();
+          document.querySelector("#knowledge-source").value = "admin";
+          showNotice("Knowledge document indexed.");
+          await refreshAdminPanel();
+        } catch (error) { showNotice(error.message); }
+      });
+
+      document.querySelector("#visual-guidelines-form").addEventListener("submit", async event => {
+        event.preventDefault();
+        const file = document.querySelector("#visual-guidelines-file").files[0];
+        if (!file) return;
+        try {
+          const body = new FormData();
+          body.append("file", file);
+          await apiFetch("/admin/visual/guidelines", { method: "POST", body });
+          event.target.reset();
+          showNotice("Visual guideline document indexed.");
+          await refreshAdminPanel();
+        } catch (error) { showNotice(error.message); }
+      });
+
+      document.querySelector("#visual-settings-form").addEventListener("submit", async event => {
+        event.preventDefault();
+        try {
+          const colours = document.querySelector("#approved-colours").value
+            .split(",").map(value => value.trim()).filter(Boolean);
+          const contrastText = document.querySelector("#contrast-pairs").value.trim();
+          const contrastPairs = contrastText ? JSON.parse(contrastText) : [];
+          await apiFetch("/admin/visual/settings", {
+            method: "PUT",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              approved_colours: colours,
+              expected_logo_zone: document.querySelector("#expected-logo-zone").value,
+              thresholds: {
+                logo_similarity: Number(document.querySelector("#logo-threshold").value),
+                colour_delta_e: Number(document.querySelector("#colour-delta-threshold").value),
+                unapproved_colour_fraction: Number(document.querySelector("#out-of-palette-threshold").value),
+                minimum_wcag_contrast: Number(document.querySelector("#minimum-contrast-threshold").value)
+              },
+              contrast_pairs: contrastPairs
+            })
+          });
+          const logo = document.querySelector("#logo-asset").files[0];
+          if (logo) {
+            const body = new FormData();
+            body.append("name", logo.name);
+            body.append("asset_type", "logo");
+            body.append("file", logo);
+            await apiFetch("/admin/visual/assets", { method: "POST", body });
+            document.querySelector("#logo-asset").value = "";
+          }
+          showNotice("Visual rules and reference assets saved.");
+          await refreshAdminPanel();
+        } catch (error) { showNotice(error.message || "Visual settings are invalid."); }
+      });
+
+      document.querySelector("#audit-button").addEventListener("click", async () => {
+        try {
+          document.querySelector("#admin-output").textContent = JSON.stringify(await apiFetch("/audit?limit=100"), null, 2);
+        } catch (error) { showNotice(error.message); }
+      });
+      document.querySelector("#verify-audit-button").addEventListener("click", async () => {
+        try {
+          document.querySelector("#admin-output").textContent = JSON.stringify(await apiFetch("/admin/audit/verify"), null, 2);
+        } catch (error) { showNotice(error.message); }
+      });
+      document.querySelector("#retention-button").addEventListener("click", async () => {
+        if (!window.confirm("Permanently delete review content older than the configured retention period?")) return;
+        try {
+          document.querySelector("#admin-output").textContent = JSON.stringify(await apiFetch("/admin/retention/purge", { method: "POST" }), null, 2);
+          await refreshWorkspace();
+        } catch (error) { showNotice(error.message); }
+      });
+      document.querySelector("#evaluation-button").addEventListener("click", async () => {
+        try {
+          document.querySelector("#admin-output").textContent = JSON.stringify(await apiFetch("/admin/evaluation/latest"), null, 2);
+        } catch (error) { showNotice(error.message); }
+      });
+
+      (async () => {
+        try {
+          const session = await apiFetch("/auth/me");
+          csrfToken = session.csrf_token;
+          setSignedIn(session.user);
+        } catch {
+          authPanel.hidden = false;
+          application.hidden = true;
+        }
+      })();
 
       fileInput.addEventListener("change", () => setFile(fileInput.files[0]));
       dropzone.addEventListener("dragover", event => {
@@ -695,6 +1468,8 @@
         clearNotice();
         result.replaceChildren();
         result.classList.remove("is-visible");
+        document.querySelector("#parent-review-id").value = "";
+        document.querySelector("#upload-title").textContent = "Submit content for review";
         setFile(null);
       });
 
@@ -702,35 +1477,27 @@
         event.preventDefault();
         clearNotice();
         const file = fileInput.files[0];
-        if (!file) {
-          showNotice("Choose an image before requesting a review.");
+        if (!file && !textInput.value.trim()) {
+          showNotice("Paste content or attach a supported file before requesting a review.");
           return;
         }
 
         submitButton.disabled = true;
-        submitButton.textContent = "Reviewing image…";
+        submitButton.textContent = "Reviewing content…";
         try {
           const body = new FormData();
-          body.append("file", file);
-          const response = await fetch("/check", { method: "POST", body });
-          let payload;
-          try {
-            payload = await response.json();
-          } catch {
-            throw new Error("The review service returned an invalid response.");
-          }
-          if (!response.ok) {
-            const detail = typeof payload.detail === "string"
-              ? payload.detail
-              : "The image could not be reviewed. Please try again.";
-            throw new Error(detail);
-          }
+          body.append("text", textInput.value);
+          body.append("parent_review_id", document.querySelector("#parent-review-id").value);
+          if (file) body.append("file", file);
+          const payload = await apiFetch("/review", { method: "POST", body });
           renderReview(payload);
+          document.querySelector("#parent-review-id").value = "";
+          await refreshWorkspace();
         } catch (error) {
           showNotice(error instanceof Error ? error.message : "Could not complete the review. Please try again.");
         } finally {
           submitButton.disabled = false;
-          submitButton.textContent = "Review image";
+          submitButton.textContent = "Review content";
         }
       });
     </script>

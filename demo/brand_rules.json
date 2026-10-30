@@ -1,0 +1,27 @@
+{
+  "brand_name": "Everpine Demo",
+  "tone": [
+    "Clear, calm and practical",
+    "Confident without guarantees or exaggerated superlatives"
+  ],
+  "restricted_terms": [
+    "guaranteed results",
+    "miracle solution"
+  ],
+  "approved_claims": [
+    "Made with 70% recycled aluminum"
+  ],
+  "product_facts": {
+    "Moss bottle capacity": "500 mL",
+    "Moss bottle material": "recycled aluminum"
+  },
+  "visual_guidance": {
+    "approved_colours": [
+      "#174d38",
+      "#ffffff"
+    ],
+    "logo_asset": "evaluation/fixtures/approved_logo.png",
+    "expected_logo_zone": "bottom_right"
+  },
+  "review_guidance": "Missing product information is not proof that a claim is false. Flag it as insufficient evidence. Visual checks are advisory measurements."
+}

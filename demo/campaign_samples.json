@@ -1,0 +1,30 @@
+{
+  "dataset_label": "Everpine demonstration-only campaign content",
+  "do_not_import_into_real_organisation": true,
+  "examples": [
+    {
+      "name": "Compliant content",
+      "content": "Meet Moss: a practical 500 mL bottle made with 70% recycled aluminum."
+    },
+    {
+      "name": "Incorrect product information",
+      "content": "The Moss bottle holds 750 mL."
+    },
+    {
+      "name": "Unsupported marketing claim",
+      "content": "The Moss bottle improves focus by 300%."
+    },
+    {
+      "name": "Restricted terminology",
+      "content": "Our miracle solution delivers guaranteed results."
+    },
+    {
+      "name": "Off-brand messaging",
+      "content": "BUY THIS NOW!!! IT'S THE BEST THING EVER!!!"
+    },
+    {
+      "name": "Revised factual copy",
+      "content": "Meet Moss: a practical 500 mL bottle made with 70% recycled aluminum. See product details for materials and care."
+    }
+  ]
+}
