@@ -65,6 +65,18 @@ def test_local_retrieval_returns_relevant_source(tmp_path, monkeypatch):
     assert result["evidence"][0]["title"] == "Approved product guide"
 
 
+def test_vercel_database_defaults_to_writable_temporary_directory(
+    monkeypatch, tmp_path
+):
+    monkeypatch.setenv("VERCEL", "1")
+    monkeypatch.delenv("FUTURESTACK_DATABASE", raising=False)
+    assert storage._default_database_path().as_posix() == "/tmp/futurestack.sqlite3"
+
+    configured_path = tmp_path / "configured.sqlite3"
+    monkeypatch.setenv("FUTURESTACK_DATABASE", str(configured_path))
+    assert storage._default_database_path() == configured_path
+
+
 def test_review_history_decision_and_dashboard_are_persistent(tmp_path, monkeypatch):
     monkeypatch.setattr(storage, "DATABASE_PATH", tmp_path / "reviews.sqlite3")
     storage.initialize_database()

@@ -12,10 +12,18 @@ from uuid import uuid4
 
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
-DATABASE_PATH = Path(
-    os.getenv("FUTURESTACK_DATABASE", "").strip()
-    or PROJECT_ROOT / "data" / "futurestack.sqlite3"
-)
+
+
+def _default_database_path() -> Path:
+    configured_path = os.getenv("FUTURESTACK_DATABASE", "").strip()
+    if configured_path:
+        return Path(configured_path)
+    if os.getenv("VERCEL") == "1":
+        return Path("/tmp/futurestack.sqlite3")
+    return PROJECT_ROOT / "data" / "futurestack.sqlite3"
+
+
+DATABASE_PATH = _default_database_path()
 
 
 class _ClosingConnection(sqlite3.Connection):

@@ -93,6 +93,13 @@ audit key, wildcard/unset CORS origins, or public registration. Production
 cookies are marked Secure; configure TLS at the application or trusted
 reverse-proxy boundary. Set `DISCORD_API_KEY` only when the bot is enabled.
 
+On Vercel, the default SQLite database is placed under `/tmp` because the
+deployment directory is read-only. Vercel's temporary filesystem is not
+persistent across deployments or function instances, so this setting only
+allows the demo to start and does not provide durable storage. Use a persistent
+database service for production data; setting `FUTURESTACK_DATABASE` to another
+path does not make Vercel's filesystem persistent.
+
 `MALWARE_SCANNER=disabled` is the default and means uploads are **not** malware
 scanned. To enable the ClamAV adapter, install and maintain ClamAV, set
 `MALWARE_SCANNER=clamav` and optionally `CLAMSCAN_PATH`, then verify the
