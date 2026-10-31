@@ -196,6 +196,33 @@ def test_text_submission_uses_shared_review_engine(monkeypatch, tmp_path):
         assert response.json()["owner_id"] == user_id
 
 
+def test_text_submission_is_available_without_login(monkeypatch, tmp_path):
+    monkeypatch.setattr(storage, "DATABASE_PATH", tmp_path / "public-review.sqlite3")
+
+    async def fake_create_review(
+        text, content_type, filename, image_bytes=None, owner_id=None, parent_review_id=None
+    ):
+        return {
+            "filename": filename,
+            "extracted_text": text,
+            "review": {"status": "approved"},
+            "owner_id": owner_id,
+        }
+
+    monkeypatch.setattr(main, "_create_review", fake_create_review)
+    with TestClient(main.app) as client:
+        response = client.post("/review", data={"text": "Public sample."})
+        revision = client.post(
+            "/review",
+            data={"text": "Attempted revision.", "parent_review_id": "another-review"},
+        )
+
+    assert response.status_code == 200
+    assert response.json()["extracted_text"] == "Public sample."
+    assert response.json()["owner_id"] is None
+    assert revision.status_code == 401
+
+
 def test_document_submission_validates_real_file_content(monkeypatch, tmp_path):
     monkeypatch.setattr(storage, "DATABASE_PATH", tmp_path / "document-review.sqlite3")
     async def fake_create_review(

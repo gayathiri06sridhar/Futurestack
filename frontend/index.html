@@ -180,7 +180,7 @@
 
       .discord-notice p { margin: 0; }
 
-      .workspace {
+      .review-layout {
         display: grid;
         grid-template-columns: minmax(0, 1fr) minmax(260px, .72fr);
         gap: 20px;
@@ -342,33 +342,6 @@
         margin: 18px 0;
       }
 
-      .stat-card, .record-card, .admin-panel {
-        padding: 16px;
-        border: 1px solid var(--line);
-        border-radius: 12px;
-        background: #fff;
-      }
-
-      .stat-card strong { display: block; font-size: 24px; }
-      .stat-card span, .muted { color: var(--muted); font-size: 12px; }
-      .records { display: grid; gap: 12px; margin-top: 15px; }
-      .record-card h3 { margin: 0 0 8px; font-size: 15px; }
-      .record-card p { color: var(--muted); font-size: 12px; line-height: 1.5; }
-      .admin-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px; }
-      .admin-panel { margin-top: 15px; }
-      .admin-panel label { display: block; margin: 10px 0 5px; font-size: 12px; font-weight: 650; }
-      .admin-panel input, .admin-panel textarea, .admin-panel select {
-        width: 100%; padding: 10px; border: 1px solid var(--line); border-radius: 8px;
-      }
-      .admin-panel textarea { min-height: 110px; resize: vertical; }
-      .record-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
-      .record-actions .button { min-height: 38px; }
-      .auth-panel { max-width: 460px; margin: 55px auto; padding: 26px; }
-      .auth-panel label { display: block; margin: 12px 0 5px; font-size: 12px; font-weight: 650; }
-      .auth-panel input { width: 100%; padding: 11px; border: 1px solid var(--line); border-radius: 8px; }
-      .top-actions { display: flex; gap: 12px; align-items: center; }
-      .small-button { border: 0; color: var(--green); background: transparent; text-decoration: underline; cursor: pointer; }
-
       .submission-text:focus-visible,
       .dropzone:focus-within,
       button:focus-visible {
@@ -512,7 +485,7 @@
 
       @media (max-width: 720px) {
         main { padding-top: 45px; }
-        .workspace { grid-template-columns: 1fr; }
+        .review-layout { grid-template-columns: 1fr; }
         .side-card { order: 2; }
       }
 
@@ -531,30 +504,8 @@
     <div class="shell">
       <header>
         <div class="brand"><span class="brand-mark" aria-hidden="true">F</span> Futurestack</div>
-        <div class="top-actions">
-          <span class="header-note" id="account-label">Brand governance assistant</span>
-          <button class="button button-secondary" id="logout-button" type="button" hidden>Sign out</button>
-        </div>
       </header>
 
-      <section class="card auth-panel" id="auth-panel" aria-labelledby="auth-title">
-        <span class="eyebrow">Secure workspace</span>
-        <h1 class="section-heading" id="auth-title">Sign in to Futurestack</h1>
-        <p class="section-copy" id="auth-description">Use your organisation account to submit or review content.</p>
-        <form id="auth-form">
-          <label for="auth-email">Email</label>
-          <input id="auth-email" name="email" type="email" autocomplete="username" required maxlength="254">
-          <label for="auth-password">Password</label>
-          <input id="auth-password" name="password" type="password" autocomplete="current-password" required minlength="12" maxlength="256">
-          <div class="actions">
-            <button class="button button-primary" id="auth-submit" type="submit">Sign in</button>
-            <button class="button button-secondary" id="auth-toggle" type="button">Create creator account</button>
-          </div>
-          <div class="notice" id="auth-notice" role="alert"></div>
-        </form>
-      </section>
-
-      <div id="application" hidden>
       <main>
         <section class="intro" aria-labelledby="page-title">
           <span class="eyebrow">Clear, consistent, on-brand</span>
@@ -562,39 +513,12 @@
           <p>Review text, images and documents against your approved brand rules and product facts.</p>
         </section>
 
-        <aside class="demo-notice" aria-label="Demo notice">
-          <span class="demo-icon" aria-hidden="true">i</span>
-          <div>
-            <strong>This is just a demo</strong>
-            <p>This prototype is JUST made for judging. The actual project is more of a FRAMEWORK that lives in your working system locally, uses your knowledge base, and acts on commands in environments such as Discord and Microsoft Teams. This demo currently shows the review flow; Microsoft Teams integration is part of the broader framework vision.</p>
-          </div>
-        </aside>
-
-        <aside class="discord-notice" aria-label="Discord bot information">
-          <span class="discord-icon" aria-hidden="true">D</span>
-          <div>
-            <strong>Command-based bot link</strong>
-            <p>This framework works directly in your local environment. Add the bot to your server here: <a href="https://discord.com/oauth2/authorize?client_id=1563673473081938080&permissions=18432&integration_type=0&scope=applications.commands+bot" target="_blank" rel="noreferrer">Invite the command-based bot</a></p>
-          </div>
-        </aside>
-
-        <section class="card side-card" aria-labelledby="dashboard-title">
-          <h2 class="section-heading" id="dashboard-title">Workspace dashboard</h2>
-          <p class="section-copy" id="dashboard-description">Live figures from persisted submissions.</p>
-          <div class="data-grid" id="dashboard-stats"></div>
-          <section aria-labelledby="records-title">
-            <h3 class="section-heading" id="records-title">Your submissions</h3>
-            <div class="records" id="submission-list"></div>
-          </section>
-        </section>
-
-        <div class="workspace" id="creator-workspace">
+        <div class="review-layout">
           <section class="card upload-card" aria-labelledby="upload-title">
             <h2 class="section-heading" id="upload-title">Submit content for review</h2>
             <p class="section-copy">Paste copy or attach an image or text-based document.</p>
 
             <form id="review-form">
-              <input id="parent-review-id" name="parent_review_id" type="hidden" value="">
               <label class="section-copy" for="submission-text">Marketing copy</label>
               <textarea class="submission-text" id="submission-text" name="text" maxlength="100000" placeholder="Paste a caption, product description or campaign claim."></textarea>
               <label class="dropzone" id="dropzone" for="image-file">
@@ -629,97 +553,7 @@
         </div>
 
         <section class="card result" id="result" aria-live="polite" aria-labelledby="result-title"></section>
-
-        <section class="card side-card" id="reviewer-workspace" hidden aria-labelledby="queue-title">
-          <h2 class="section-heading" id="queue-title">Pending human review</h2>
-          <p class="section-copy">Decisions are recorded as your authenticated account; AI advice is never the final approval.</p>
-          <label for="severity-filter">Filter by severity</label>
-          <select id="severity-filter">
-            <option value="">All severities</option>
-            <option value="high">High risk</option>
-            <option value="medium">Medium risk</option>
-            <option value="low">Low risk</option>
-          </select>
-          <div class="records" id="review-queue"></div>
-          <h3 class="section-heading">Review history</h3>
-          <div class="records" id="review-history"></div>
-        </section>
-
-        <section class="card side-card" id="admin-workspace" hidden aria-labelledby="admin-title">
-          <h2 class="section-heading" id="admin-title">Administration</h2>
-          <div class="admin-grid">
-            <form class="admin-panel" id="user-form">
-              <h3 class="section-heading">Create user</h3>
-              <label for="new-user-email">Email</label>
-              <input id="new-user-email" type="email" required maxlength="254">
-              <label for="new-user-password">Temporary password (12+ characters)</label>
-              <input id="new-user-password" type="password" required minlength="12" maxlength="256">
-              <label for="new-user-role">Role</label>
-              <select id="new-user-role"><option value="creator">Creator</option><option value="reviewer">Reviewer</option><option value="admin">Admin</option></select>
-              <button class="button button-primary" type="submit">Create account</button>
-              <div class="records" id="user-list"></div>
-            </form>
-            <form class="admin-panel" id="rules-form">
-              <h3 class="section-heading">Brand rules JSON</h3>
-              <textarea id="rules-json" spellcheck="false" aria-label="Brand rules JSON"></textarea>
-              <button class="button button-primary" type="submit">Save brand rules</button>
-            </form>
-            <form class="admin-panel" id="knowledge-form">
-              <h3 class="section-heading">Add knowledge document</h3>
-              <label for="knowledge-title">Title</label><input id="knowledge-title" required>
-              <label for="knowledge-source">Source</label><input id="knowledge-source" value="admin" required>
-              <label for="knowledge-content">Guidelines and approved facts</label><textarea id="knowledge-content" required></textarea>
-              <button class="button button-primary" type="submit">Index knowledge</button>
-            </form>
-            <section class="admin-panel" aria-labelledby="knowledge-library-title">
-              <h3 class="section-heading" id="knowledge-library-title">Knowledge library</h3>
-              <div class="records" id="knowledge-list"></div>
-            </section>
-            <form class="admin-panel" id="visual-guidelines-form">
-              <h3 class="section-heading">Upload visual guidelines</h3>
-              <label for="visual-guidelines-file">PDF or UTF-8 text document</label>
-              <input id="visual-guidelines-file" type="file" accept=".pdf,.txt,.md,.csv,.json" required>
-              <button class="button button-primary" type="submit">Index visual guidelines</button>
-            </form>
-            <form class="admin-panel" id="visual-settings-form">
-              <h3 class="section-heading">Visual rules</h3>
-              <label for="approved-colours">Approved colours (comma-separated hex values)</label>
-              <input id="approved-colours" placeholder="#1d674b, #ffffff">
-              <label for="logo-threshold">Logo similarity threshold (0–1)</label>
-              <input id="logo-threshold" type="number" min="0" max="1" step="0.01" value="0.72">
-              <label for="expected-logo-zone">Expected logo placement</label>
-              <select id="expected-logo-zone">
-                <option value="any">Any placement</option>
-                <option value="top_left">Top left</option>
-                <option value="top_right">Top right</option>
-                <option value="bottom_left">Bottom left</option>
-                <option value="bottom_right">Bottom right</option>
-                <option value="center">Center</option>
-              </select>
-              <label for="colour-delta-threshold">Maximum CIE76 colour distance</label>
-              <input id="colour-delta-threshold" type="number" min="0" max="441.7" step="0.1" value="38">
-              <label for="out-of-palette-threshold">Maximum out-of-palette pixel fraction (0–1)</label>
-              <input id="out-of-palette-threshold" type="number" min="0" max="1" step="0.01" value="0.55">
-              <label for="minimum-contrast-threshold">Default minimum WCAG contrast ratio</label>
-              <input id="minimum-contrast-threshold" type="number" min="1" max="21" step="0.1" value="4.5">
-              <label for="contrast-pairs">Configured text/background colour pairs (JSON)</label>
-              <textarea id="contrast-pairs" placeholder='[{"label":"Body copy","foreground":"#222222","background":"#ffffff","minimum_ratio":4.5}]'></textarea>
-              <label for="logo-asset">Approved logo</label>
-              <input id="logo-asset" type="file" accept="image/png,image/jpeg,image/gif,image/webp">
-              <button class="button button-primary" type="submit">Save visual rules</button>
-              <div class="records" id="asset-list"></div>
-            </form>
-          </div>
-          <div class="record-actions">
-            <button class="button button-secondary" id="audit-button" type="button">Load audit log</button>
-            <button class="button button-secondary" id="verify-audit-button" type="button">Verify audit chain</button>
-            <button class="button button-secondary" id="retention-button" type="button">Run retention purge</button>
-            <button class="button button-secondary" id="evaluation-button" type="button">Load latest evaluation</button>
-          </div>
-          <pre class="extracted" id="admin-output"></pre>
-        </section>
       </main>
-      </div>
 
       <footer>AI feedback is advisory and is not a legal or brand approval. Always have a human review the final creative.</footer>
     </div>
@@ -736,24 +570,10 @@
       const notice = document.querySelector("#notice");
       const result = document.querySelector("#result");
       const submitButton = document.querySelector("#submit-button");
-      const authPanel = document.querySelector("#auth-panel");
-      const application = document.querySelector("#application");
-      const authForm = document.querySelector("#auth-form");
-      const authNotice = document.querySelector("#auth-notice");
-      const authToggle = document.querySelector("#auth-toggle");
-      const logoutButton = document.querySelector("#logout-button");
-      let csrfToken = "";
-      let account = null;
-      let registrationMode = false;
       let previewUrl = null;
 
       async function apiFetch(url, options = {}) {
-        const headers = new Headers(options.headers || {});
-        const method = (options.method || "GET").toUpperCase();
-        if (!["GET", "HEAD", "OPTIONS"].includes(method) && csrfToken) {
-          headers.set("X-CSRF-Token", csrfToken);
-        }
-        const response = await fetch(url, { ...options, headers, credentials: "same-origin" });
+        const response = await fetch(url, { ...options, credentials: "omit" });
         let payload;
         try {
           payload = await response.json();
@@ -1255,198 +1075,6 @@
         result.scrollIntoView({ behavior: "smooth", block: "start" });
       }
 
-      authToggle.addEventListener("click", () => {
-        registrationMode = !registrationMode;
-        document.querySelector("#auth-title").textContent = registrationMode ? "Create creator account" : "Sign in to Futurestack";
-        document.querySelector("#auth-description").textContent = registrationMode
-          ? "New accounts receive the Creator role. An administrator can assign reviewer access."
-          : "Use your organisation account to submit or review content.";
-        document.querySelector("#auth-password").autocomplete = registrationMode ? "new-password" : "current-password";
-        document.querySelector("#auth-submit").textContent = registrationMode ? "Create account" : "Sign in";
-        authToggle.textContent = registrationMode ? "Back to sign in" : "Create creator account";
-        authNotice.classList.remove("is-visible");
-      });
-
-      authForm.addEventListener("submit", async event => {
-        event.preventDefault();
-        authNotice.classList.remove("is-visible");
-        const credentials = {
-          email: document.querySelector("#auth-email").value.trim(),
-          password: document.querySelector("#auth-password").value
-        };
-        try {
-          if (registrationMode) {
-            await apiFetch("/auth/register", {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify(credentials)
-            });
-            registrationMode = false;
-            document.querySelector("#auth-title").textContent = "Sign in to Futurestack";
-            document.querySelector("#auth-submit").textContent = "Sign in";
-            document.querySelector("#auth-toggle").textContent = "Create creator account";
-            document.querySelector("#auth-password").autocomplete = "current-password";
-          }
-          const result = await apiFetch("/auth/login", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(credentials)
-          });
-          csrfToken = result.csrf_token;
-          setSignedIn(result.user);
-        } catch (error) {
-          authError(error);
-        }
-      });
-
-      logoutButton.addEventListener("click", async () => {
-        try {
-          await apiFetch("/auth/logout", { method: "POST" });
-        } catch (error) {
-          showNotice(error instanceof Error ? error.message : "Sign-out request failed.");
-        } finally {
-          signOut();
-        }
-      });
-
-      document.querySelector("#severity-filter").addEventListener("change", () => {
-        refreshWorkspace().catch(error => showNotice(error.message));
-      });
-
-      document.querySelector("#user-form").addEventListener("submit", async event => {
-        event.preventDefault();
-        try {
-          await apiFetch("/admin/users", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              email: document.querySelector("#new-user-email").value.trim(),
-              password: document.querySelector("#new-user-password").value,
-              role: document.querySelector("#new-user-role").value
-            })
-          });
-          event.target.reset();
-          await refreshAdminPanel();
-        } catch (error) { showNotice(error.message); }
-      });
-
-      document.querySelector("#rules-form").addEventListener("submit", async event => {
-        event.preventDefault();
-        try {
-          const rules = JSON.parse(document.querySelector("#rules-json").value);
-          await apiFetch("/admin/brand-rules", {
-            method: "PUT",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(rules)
-          });
-          showNotice("Brand rules saved and re-indexed.");
-          await refreshAdminPanel();
-        } catch (error) { showNotice(error.message || "Brand rules must be valid JSON."); }
-      });
-
-      document.querySelector("#knowledge-form").addEventListener("submit", async event => {
-        event.preventDefault();
-        try {
-          await apiFetch("/knowledge/documents", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              title: document.querySelector("#knowledge-title").value.trim(),
-              source: document.querySelector("#knowledge-source").value.trim(),
-              content: document.querySelector("#knowledge-content").value
-            })
-          });
-          event.target.reset();
-          document.querySelector("#knowledge-source").value = "admin";
-          showNotice("Knowledge document indexed.");
-          await refreshAdminPanel();
-        } catch (error) { showNotice(error.message); }
-      });
-
-      document.querySelector("#visual-guidelines-form").addEventListener("submit", async event => {
-        event.preventDefault();
-        const file = document.querySelector("#visual-guidelines-file").files[0];
-        if (!file) return;
-        try {
-          const body = new FormData();
-          body.append("file", file);
-          await apiFetch("/admin/visual/guidelines", { method: "POST", body });
-          event.target.reset();
-          showNotice("Visual guideline document indexed.");
-          await refreshAdminPanel();
-        } catch (error) { showNotice(error.message); }
-      });
-
-      document.querySelector("#visual-settings-form").addEventListener("submit", async event => {
-        event.preventDefault();
-        try {
-          const colours = document.querySelector("#approved-colours").value
-            .split(",").map(value => value.trim()).filter(Boolean);
-          const contrastText = document.querySelector("#contrast-pairs").value.trim();
-          const contrastPairs = contrastText ? JSON.parse(contrastText) : [];
-          await apiFetch("/admin/visual/settings", {
-            method: "PUT",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              approved_colours: colours,
-              expected_logo_zone: document.querySelector("#expected-logo-zone").value,
-              thresholds: {
-                logo_similarity: Number(document.querySelector("#logo-threshold").value),
-                colour_delta_e: Number(document.querySelector("#colour-delta-threshold").value),
-                unapproved_colour_fraction: Number(document.querySelector("#out-of-palette-threshold").value),
-                minimum_wcag_contrast: Number(document.querySelector("#minimum-contrast-threshold").value)
-              },
-              contrast_pairs: contrastPairs
-            })
-          });
-          const logo = document.querySelector("#logo-asset").files[0];
-          if (logo) {
-            const body = new FormData();
-            body.append("name", logo.name);
-            body.append("asset_type", "logo");
-            body.append("file", logo);
-            await apiFetch("/admin/visual/assets", { method: "POST", body });
-            document.querySelector("#logo-asset").value = "";
-          }
-          showNotice("Visual rules and reference assets saved.");
-          await refreshAdminPanel();
-        } catch (error) { showNotice(error.message || "Visual settings are invalid."); }
-      });
-
-      document.querySelector("#audit-button").addEventListener("click", async () => {
-        try {
-          document.querySelector("#admin-output").textContent = JSON.stringify(await apiFetch("/audit?limit=100"), null, 2);
-        } catch (error) { showNotice(error.message); }
-      });
-      document.querySelector("#verify-audit-button").addEventListener("click", async () => {
-        try {
-          document.querySelector("#admin-output").textContent = JSON.stringify(await apiFetch("/admin/audit/verify"), null, 2);
-        } catch (error) { showNotice(error.message); }
-      });
-      document.querySelector("#retention-button").addEventListener("click", async () => {
-        if (!window.confirm("Permanently delete review content older than the configured retention period?")) return;
-        try {
-          document.querySelector("#admin-output").textContent = JSON.stringify(await apiFetch("/admin/retention/purge", { method: "POST" }), null, 2);
-          await refreshWorkspace();
-        } catch (error) { showNotice(error.message); }
-      });
-      document.querySelector("#evaluation-button").addEventListener("click", async () => {
-        try {
-          document.querySelector("#admin-output").textContent = JSON.stringify(await apiFetch("/admin/evaluation/latest"), null, 2);
-        } catch (error) { showNotice(error.message); }
-      });
-
-      (async () => {
-        try {
-          const session = await apiFetch("/auth/me");
-          csrfToken = session.csrf_token;
-          setSignedIn(session.user);
-        } catch {
-          authPanel.hidden = false;
-          application.hidden = true;
-        }
-      })();
-
       fileInput.addEventListener("change", () => setFile(fileInput.files[0]));
       dropzone.addEventListener("dragover", event => {
         event.preventDefault();
@@ -1468,8 +1096,6 @@
         clearNotice();
         result.replaceChildren();
         result.classList.remove("is-visible");
-        document.querySelector("#parent-review-id").value = "";
-        document.querySelector("#upload-title").textContent = "Submit content for review";
         setFile(null);
       });
 
@@ -1487,12 +1113,9 @@
         try {
           const body = new FormData();
           body.append("text", textInput.value);
-          body.append("parent_review_id", document.querySelector("#parent-review-id").value);
           if (file) body.append("file", file);
           const payload = await apiFetch("/review", { method: "POST", body });
           renderReview(payload);
-          document.querySelector("#parent-review-id").value = "";
-          await refreshWorkspace();
         } catch (error) {
           showNotice(error instanceof Error ? error.message : "Could not complete the review. Please try again.");
         } finally {

@@ -378,6 +378,16 @@ def get_current_user(request: Request) -> dict[str, Any]:
     return session
 
 
+def get_optional_current_user(request: Request) -> dict[str, Any] | None:
+    token = request.cookies.get(SESSION_COOKIE)
+    if not token:
+        return None
+    session = get_session(hashlib.sha256(token.encode()).hexdigest())
+    if session is None:
+        raise HTTPException(status_code=401, detail="Session expired. Please log in again.")
+    return session
+
+
 def require_csrf(
     request: Request,
     user: dict[str, Any] = Depends(get_current_user),
@@ -634,12 +644,19 @@ async def check_document(
 
 @app.post("/review")
 async def review_submission(
+    request: Request,
     text: str = Form(default=""),
     file: UploadFile | None = File(default=None),
     parent_review_id: str | None = Form(default=None),
-    actor: dict[str, Any] = Depends(require_creator),
-    _: dict[str, Any] = Depends(require_csrf),
+    actor: dict[str, Any] | None = Depends(get_optional_current_user),
 ) -> dict[str, Any]:
+    if actor is not None and not valid_csrf_token(
+        request.headers.get("X-CSRF-Token"), actor["csrf_hash"]
+    ):
+        raise HTTPException(status_code=403, detail="CSRF token is missing or invalid.")
+    if parent_review_id and actor is None:
+        raise HTTPException(status_code=401, detail="Sign in to revise a submission.")
+
     pasted_text = text.strip()
     if file is not None:
         filename = _safe_filename(file.filename)
@@ -687,7 +704,7 @@ async def review_submission(
             content_type,
             filename,
             image_bytes,
-            owner_id=actor["user_id"],
+            owner_id=actor["user_id"] if actor is not None else None,
             parent_review_id=parent_review_id,
         )
     except PermissionError as exc:
