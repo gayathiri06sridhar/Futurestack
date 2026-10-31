@@ -1,6 +1,6 @@
-# Futurestack
+# checkerBot
 
-Futurestack is an advisory brand-governance application for marketing copy,
+checkerBot is an advisory brand-governance application for marketing copy,
 images, and text-based documents. It combines retrieved brand guidance and AI
 findings with measurable visual checks and a persisted human review process.
 AI findings are never a final approval.
